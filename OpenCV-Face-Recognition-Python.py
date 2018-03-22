@@ -44,19 +44,22 @@ import numpy as np
 # 
 # The _`test-data`_ folder contains images that we will use to test our face recognizer after it has been successfully trained.
 
-# As OpenCV face recognizer accepts labels as integers so we need to define a mapping between integer labels and persons actual names so below I am defining a mapping of persons integer labels and their respective names. 
+# As OpenCV face recognizer accepts labels as integers so we need to define a mapping between integer labels and persons actual names so below 
+# I am defining a mapping of persons integer labels and their respective names. 
 # 
 # **Note:** As we have not assigned `label 0` to any person so **the mapping for label 0 is empty**. 
 
 # In[2]:
 
 #there is no label 0 in our training data so subject name for index/label 0 is empty
-subjects = ["", "Ramiz Raja", "Elvis Presley"]
+subjects = ["", "Ramiz Raja", "Elvis Presley", "Valentina"]
 
 
 # ### Prepare training data
 
-# You may be wondering why data preparation, right? Well, OpenCV face recognizer accepts data in a specific format. It accepts two vectors, one vector is of faces of all the persons and the second vector is of integer labels for each face so that when processing a face the face recognizer knows which person that particular face belongs too. 
+# You may be wondering why data preparation, right? Well, OpenCV face recognizer accepts data in a specific format. 
+# It accepts two vectors, one vector is of faces of all the persons and the second vector is of integer labels for each face so 
+# that when processing a face the face recognizer knows which person that particular face belongs too. 
 # 
 # For example, if we had 2 persons and 2 images for each person. 
 # 
@@ -82,13 +85,19 @@ subjects = ["", "Ramiz Raja", "Elvis Presley"]
 # Preparing data step can be further divided into following sub-steps.
 # 
 # 1. Read all the folder names of subjects/persons provided in training data folder. So for example, in this tutorial we have folder names: `s1, s2`. 
-# 2. For each subject, extract label number. **Do you remember that our folders have a special naming convention?** Folder names follow the format `sLabel` where `Label` is an integer representing the label we have assigned to that subject. So for example, folder name `s1` means that the subject has label 1, s2 means subject label is 2 and so on. The label extracted in this step is assigned to each face detected in the next step. 
+# 2. For each subject, extract label number. **Do you remember that our folders have a special naming convention?** 
+#       Folder names follow the format `sLabel` where `Label` is an integer representing the label we have assigned to that subject. 
+#       So for example, folder name `s1` means that the subject has label 1, s2 means subject label is 2 and so on. 
+#       The label extracted in this step is assigned to each face detected in the next step. 
 # 3. Read all the images of the subject, detect face from each image.
 # 4. Add each face to faces vector with corresponding subject label (extracted in above step) added to labels vector. 
 # 
 # **[There should be a visualization for above steps here]**
 
-# Did you read my last article on [face detection](https://www.superdatascience.com/opencv-face-detection/)? No? Then you better do so right now because to detect faces, I am going to use the code from my previous article on [face detection](https://www.superdatascience.com/opencv-face-detection/). So if you have not read it, I encourage you to do so to understand how face detection works and its coding. Below is the same code.
+# Did you read my last article on [face detection](https://www.superdatascience.com/opencv-face-detection/)? No? 
+# Then you better do so right now because to detect faces, 
+# I am going to use the code from my previous article on [face detection](https://www.superdatascience.com/opencv-face-detection/). 
+# So if you have not read it, I encourage you to do so to understand how face detection works and its coding. Below is the same code.
 
 # In[3]:
 
@@ -99,7 +108,8 @@ def detect_face(img):
     
     #load OpenCV face detector, I am using LBP which is fast
     #there is also a more accurate but slow Haar classifier
-    face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
+    # face_cascade = cv2.CascadeClassifier('opencv-files/lbpcascade_frontalface.xml')
+    face_cascade = cv2.CascadeClassifier('opencv-files/haarcascade_frontalface_alt.xml')
 
     #let's detect multiscale (some images may be closer to camera than others) images
     #result is a list of faces
@@ -107,6 +117,7 @@ def detect_face(img):
     
     #if no faces are detected then return original img
     if (len(faces) == 0):
+        print("No faces found")
         return None, None
     
     #under the assumption that there will be only one face,
@@ -117,7 +128,13 @@ def detect_face(img):
     return gray[y:y+w, x:x+h], faces[0]
 
 
-# I am using OpenCV's **LBP face detector**. On _line 4_, I convert the image to grayscale because most operations in OpenCV are performed in gray scale, then on _line 8_ I load LBP face detector using `cv2.CascadeClassifier` class. After that on _line 12_ I use `cv2.CascadeClassifier` class' `detectMultiScale` method to detect all the faces in the image. on _line 20_, from detected faces I only pick the first face because in one image there will be only one face (under the assumption that there will be only one prominent face). As faces returned by `detectMultiScale` method are actually rectangles (x, y, width, height) and not actual faces images so we have to extract face image area from the main image. So on _line 23_ I extract face area from gray image and return both the face image area and face rectangle.
+# I am using OpenCV's **LBP face detector**. 
+# On _line 4_, I convert the image to grayscale because most operations in OpenCV are performed in gray scale, 
+# then on _line 8_ I load LBP face detector using `cv2.CascadeClassifier` class. After that on _line 12_ I use `cv2.CascadeClassifier` class' `detectMultiScale` method 
+# to detect all the faces in the image. on _line 20_, from detected faces I only pick the first face because in one image there will be only one face 
+# (under the assumption that there will be only one prominent face). As faces returned by `detectMultiScale` method are actually rectangles (x, y, width, height) 
+# and not actual faces images so we have to extract face image area from the main image. So on _line 23_ I extract face area from gray image and 
+# return both the face image area and face rectangle.
 # 
 # Now you have got a face detector and you know the 4 steps to prepare the data, so are you ready to code the prepare data step? Yes? So let's do it. 
 
@@ -179,6 +196,7 @@ def prepare_training_data(data_folder_path):
             cv2.waitKey(100)
             
             #detect face
+            print('Detecting face for image: ' + subject_dir_path + '/' + image_name)
             face, rect = detect_face(image)
             
             #------STEP-4--------
@@ -302,19 +320,28 @@ def predict(test_img):
     #detect face from the image
     face, rect = detect_face(img)
 
-    #predict the image using our face recognizer 
-    label, confidence = face_recognizer.predict(face)
-    #get name of respective label returned by face recognizer
-    label_text = subjects[label]
-    
-    #draw a rectangle around face detected
-    draw_rectangle(img, rect)
-    #draw name of predicted person
-    draw_text(img, label_text, rect[0], rect[1]-5)
+    if face is None:
+        print("Can't predict. No faces found in the test image provided.")
+    else:
+        #predict the image using our face recognizer 
+        label, confidence = face_recognizer.predict(face)
+
+        #get name of respective label returned by face recognizer
+        label_text = subjects[label]
+        if confidence == 0:
+            print('Totally onfident that the face detected in the test image is ' + label_text + '.' )
+        else:
+            print(str(confidence) + " (the higher, the worse is the confidence) confident that the face detected in the test image is " + label_text + ".")
+        
+        #draw a rectangle around face detected
+        draw_rectangle(img, rect)
+        #draw name of predicted person
+        draw_text(img, label_text, rect[0], rect[1]-5)
     
     return img
 
-# Now that we have the prediction function well defined, next step is to actually call this function on our test images and display those test images to see if our face recognizer correctly recognized them. So let's do it. This is what we have been waiting for. 
+# Now that we have the prediction function well defined, next step is to actually call this function on our test images and display those
+#  test images to see if our face recognizer correctly recognized them. So let's do it. This is what we have been waiting for. 
 
 # In[10]:
 
@@ -323,15 +350,18 @@ print("Predicting images...")
 #load test images
 test_img1 = cv2.imread("test-data/test1.jpg")
 test_img2 = cv2.imread("test-data/test2.jpg")
+test_img3 = cv2.imread("test-data/test3.jpg")
 
 #perform a prediction
 predicted_img1 = predict(test_img1)
 predicted_img2 = predict(test_img2)
+predicted_img3 = predict(test_img3)
 print("Prediction complete")
 
 #display both images
 cv2.imshow(subjects[1], cv2.resize(predicted_img1, (400, 500)))
 cv2.imshow(subjects[2], cv2.resize(predicted_img2, (400, 500)))
+cv2.imshow(subjects[3], cv2.resize(predicted_img3, (400, 500)))
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 cv2.waitKey(1)
