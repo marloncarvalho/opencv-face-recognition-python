@@ -113,7 +113,7 @@ def detect_face(img):
 
     #let's detect multiscale (some images may be closer to camera than others) images
     #result is a list of faces
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5);
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
     
     #if no faces are detected then return original img
     if (len(faces) == 0):
@@ -182,7 +182,7 @@ def prepare_training_data(data_folder_path):
             
             #ignore system files like .DS_Store
             if image_name.startswith("."):
-                continue;
+                continue
             
             #build image path
             #sample image path = training-data/s1/1.pgm
@@ -329,7 +329,7 @@ def predict(test_img):
         #get name of respective label returned by face recognizer
         label_text = subjects[label]
         if confidence == 0:
-            print('Totally onfident that the face detected in the test image is ' + label_text + '.' )
+            print('Totally confident that the face detected in the test image is ' + label_text + '.' )
         else:
             print(str(confidence) + " (the higher, the worse is the confidence) confident that the face detected in the test image is " + label_text + ".")
         
